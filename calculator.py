@@ -3,6 +3,8 @@ from typing import Any
 
 YEARLY_PAUSCHALE = 2600.0
 MONTHLY_PAUSCHALE = YEARLY_PAUSCHALE / 12
+FUEL_COST_PER_LITRE = 2.00
+TOTAL_FUEL_CAPACITY = 54
 
 
 def calculate_monthly_costs(trips):
@@ -12,6 +14,7 @@ def calculate_monthly_costs(trips):
     trips_sorted = sorted(trips, key=lambda t: t["datum"])
 
     __check_invalid_kilometers(trips_sorted)
+
     months_trips = defaultdict(list)
     for t in trips_sorted:
         months_trips[t["month"]].append(t)
@@ -38,7 +41,7 @@ def calculate_monthly_costs(trips):
         month_trips = months_trips.get(month, [])
 
         if not month_trips:
-            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
             continue
 
         first_km_start = month_trips[0]["km_start"]
@@ -56,16 +59,40 @@ def calculate_monthly_costs(trips):
 
         prev_last_km = last_km_end
 
+        jannis_fuel_delta = _calculate_jannis_fuel_delta(month_trips)
+        lukas_fuel_delta = _calculate_lukas_fuel_delta(month_trips)
+        litres_per_unit = TOTAL_FUEL_CAPACITY / 20
+        j_fuel_debt = round(-jannis_fuel_delta * litres_per_unit * FUEL_COST_PER_LITRE, 2)
+        l_fuel_debt = round(-lukas_fuel_delta * litres_per_unit * FUEL_COST_PER_LITRE, 2)
+
         if total_km == 0:
-            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, j_fuel_debt, l_fuel_debt))
         else:
             jannis_km_percentage = jannis_km / total_km * 100
             lukas_km_percentage = lukas_km / total_km * 100
             jannis_costs = MONTHLY_PAUSCHALE * (jannis_km / total_km)
             lukas_costs = MONTHLY_PAUSCHALE * (lukas_km / total_km)
-            results.append((month, jannis_km, jannis_km_percentage, jannis_costs, lukas_km, lukas_km_percentage, lukas_costs))
+            results.append((month, jannis_km, jannis_km_percentage, jannis_costs, lukas_km, lukas_km_percentage, lukas_costs, j_fuel_debt, l_fuel_debt))
 
     return results
+
+
+def _calculate_jannis_fuel_delta(month_trips):
+    total = 0
+    for trip in month_trips:
+        if trip["fuel_start"] is not None and trip["fuel_end"] is not None:
+            total += trip["fuel_end"] - trip["fuel_start"]
+    return total
+
+
+def _calculate_lukas_fuel_delta(month_trips):
+    total = 0
+    for i in range(1, len(month_trips)):
+        prev_fuel_end = month_trips[i - 1]["fuel_end"]
+        curr_fuel_start = month_trips[i]["fuel_start"]
+        if prev_fuel_end is not None and curr_fuel_start is not None:
+            total += curr_fuel_start - prev_fuel_end
+    return total
 
 
 def __check_invalid_kilometers(trips_sorted: list[Any]):
@@ -84,4 +111,3 @@ def __check_invalid_kilometers(trips_sorted: list[Any]):
                 f"Ungültige km-Reihenfolge: Eintrag {i + 1} hat km_start={curr_start} "
                 f"kleiner als vorheriges km_end={prev_end}."
             )
-
