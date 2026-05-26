@@ -61,9 +61,9 @@ def _parse_fuel(raw, row_index, field_name):
 def print_report(results):
     print(f"Fahrtenbuch - Monatliche Kostenaufteilung (Pauschale: {YEARLY_PAUSCHALE:.0f} EUR/Jahr)")
     print(f"Monatlicher Betrag: {MONTHLY_PAUSCHALE:.2f} EUR  |  Kraftstoff: {FUEL_COST_PER_LITRE:.2f} EUR/Liter  |  Tank: {TOTAL_FUEL_CAPACITY} Liter")
-    print("-" * 90)
-    print(f"{'Monat':<10} {'Jannis km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8}   {'Lukas km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8}")
-    print("-" * 90)
+    print("-" * 110)
+    print(f"{'Monat':<10} {'Jannis km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8}   {'Lukas km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8}")
+    print("-" * 110)
 
     total_j_cost = 0.0
     total_l_cost = 0.0
@@ -75,10 +75,14 @@ def print_report(results):
         total_l_cost += l_cost
         total_j_fuel += j_fuel_debt
         total_l_fuel += l_fuel_debt
-        print(f"{month:<10} {j_km:>10.1f} {j_pct:>5.1f}% {j_cost:>8.2f} {j_fuel_debt:>8.2f}   {l_km:>10.1f} {l_pct:>5.1f}% {l_cost:>8.2f} {l_fuel_debt:>8.2f}")
+        j_total = j_cost + j_fuel_debt
+        l_total = l_cost + l_fuel_debt
+        print(f"{month:<10} {j_km:>10.1f} {j_pct:>5.1f}% {j_cost:>8.2f} {j_fuel_debt:>8.2f} {j_total:>8.2f}   {l_km:>10.1f} {l_pct:>5.1f}% {l_cost:>8.2f} {l_fuel_debt:>8.2f} {l_total:>8.2f}")
 
-    print("-" * 90)
-    print(f"{'GESAMT':<10} {'':>10} {'':>6} {total_j_cost:>8.2f} {total_j_fuel:>8.2f}   {'':>10} {'':>6} {total_l_cost:>8.2f} {total_l_fuel:>8.2f}")
+    print("-" * 110)
+    j_grand_total = total_j_cost + total_j_fuel
+    l_grand_total = total_l_cost + total_l_fuel
+    print(f"{'GESAMT':<10} {'':>10} {'':>6} {total_j_cost:>8.2f} {total_j_fuel:>8.2f} {j_grand_total:>8.2f}   {'':>10} {'':>6} {total_l_cost:>8.2f} {total_l_fuel:>8.2f} {l_grand_total:>8.2f}")
 
 
 if __name__ == "__main__":
