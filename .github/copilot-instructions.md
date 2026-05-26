@@ -1,6 +1,7 @@
 ## General Principles
 - Do not use comments, except for TODO comments. Instead, use clear and concise naming.
 - Adhere to Clean Code principles.
+- with naming do never use abbreviations.
 - No one-line functions (single expression functions) are allowed. Always use curly braces and explicit returns.
 
 ## Testing Requirements
