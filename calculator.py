@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Any
 
 YEARLY_PAUSCHALE = 2600.0
 MONTHLY_PAUSCHALE = YEARLY_PAUSCHALE / 12
@@ -10,6 +11,7 @@ def calculate_monthly_costs(trips):
 
     trips_sorted = sorted(trips, key=lambda t: t["datum"])
 
+    __check_invalid_kilometers(trips_sorted)
     months_trips = defaultdict(list)
     for t in trips_sorted:
         months_trips[t["month"]].append(t)
@@ -64,4 +66,15 @@ def calculate_monthly_costs(trips):
             results.append((month, jannis_km, jannis_km_percentage, jannis_costs, lukas_km, lukas_km_percentage, lukas_costs))
 
     return results
+
+
+def __check_invalid_kilometers(trips_sorted: list[Any]):
+    for i in range(1, len(trips_sorted)):
+        prev_end = trips_sorted[i - 1]["km_end"]
+        curr_start = trips_sorted[i]["km_start"]
+        if curr_start < prev_end:
+            raise ValueError(
+                f"Ungültige km-Reihenfolge: Eintrag {i + 1} hat km_start={curr_start} "
+                f"kleiner als vorheriges km_end={prev_end}."
+            )
 

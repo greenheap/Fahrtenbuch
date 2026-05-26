@@ -1,4 +1,29 @@
+import pytest
+
 from calculator import calculate_monthly_costs, MONTHLY_PAUSCHALE
+
+
+def test_empty_list():
+    results = calculate_monthly_costs([])
+    assert results == []
+
+def test_given_invalid_km_then_throw_exception():
+    trips = [
+        {"datum": "2026-05-01",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1100.0,
+         "jannis_km": 100.0,
+         "fuel_level": 10},
+        {"datum": "2026-05-10",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1400.0,
+         "jannis_km": 200.0,
+         "fuel_level": 8},
+    ]
+    with pytest.raises(ValueError):
+        calculate_monthly_costs(trips)
 
 
 def test_100_percent():
@@ -33,7 +58,12 @@ def test_75_percentage_split():
          "km_end": 1100.0,
          "jannis_km": 100.0,
          "fuel_level": 10},
-        {"datum": "2026-05-10", "month": "2026-05", "km_start": 1200.0, "km_end": 1400.0, "jannis_km": 200.0, "fuel_level": 8},
+        {"datum": "2026-05-10",
+         "month": "2026-05",
+         "km_start": 1200.0,
+         "km_end": 1400.0,
+         "jannis_km": 200.0,
+         "fuel_level": 8},
     ]
 
     results = calculate_monthly_costs(trips)
