@@ -8,10 +8,8 @@ def calculate_monthly_costs(trips):
     if not trips:
         return []
 
-    # Sort trips by date to ensure correct odometer order
     trips_sorted = sorted(trips, key=lambda t: t["datum"])
 
-    # Group by month
     months_trips = defaultdict(list)
     for t in trips_sorted:
         months_trips[t["month"]].append(t)
@@ -59,11 +57,11 @@ def calculate_monthly_costs(trips):
         if total_km == 0:
             results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
         else:
-            j_pct = jannis_km / total_km * 100
-            l_pct = lukas_km / total_km * 100
-            j_cost = MONTHLY_PAUSCHALE * (jannis_km / total_km)
-            l_cost = MONTHLY_PAUSCHALE * (lukas_km / total_km)
-            results.append((month, jannis_km, j_pct, j_cost, lukas_km, l_pct, l_cost))
+            jannis_km_percentage = jannis_km / total_km * 100
+            lukas_km_percentage = lukas_km / total_km * 100
+            jannis_costs = MONTHLY_PAUSCHALE * (jannis_km / total_km)
+            lukas_costs = MONTHLY_PAUSCHALE * (lukas_km / total_km)
+            results.append((month, jannis_km, jannis_km_percentage, jannis_costs, lukas_km, lukas_km_percentage, lukas_costs))
 
     return results
 
