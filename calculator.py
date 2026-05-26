@@ -1,10 +1,10 @@
 from collections import defaultdict
 from typing import Any
 
+from fuel_calculator import calculate_jannis_fuel_debt, calculate_lukas_fuel_debt, FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
+
 YEARLY_PAUSCHALE = 2600.0
 MONTHLY_PAUSCHALE = YEARLY_PAUSCHALE / 12
-FUEL_COST_PER_LITRE = 2.00
-TOTAL_FUEL_CAPACITY = 54
 
 
 def calculate_monthly_costs(trips):
@@ -59,11 +59,8 @@ def calculate_monthly_costs(trips):
 
         prev_last_km = last_km_end
 
-        jannis_fuel_delta = _calculate_jannis_fuel_delta(month_trips)
-        lukas_fuel_delta = _calculate_lukas_fuel_delta(month_trips)
-        litres_per_unit = TOTAL_FUEL_CAPACITY / 20
-        j_fuel_debt = round(-jannis_fuel_delta * litres_per_unit * FUEL_COST_PER_LITRE, 2)
-        l_fuel_debt = round(-lukas_fuel_delta * litres_per_unit * FUEL_COST_PER_LITRE, 2)
+        j_fuel_debt = calculate_jannis_fuel_debt(month_trips)
+        l_fuel_debt = calculate_lukas_fuel_debt(month_trips)
 
         if total_km == 0:
             results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, j_fuel_debt, l_fuel_debt))
@@ -76,23 +73,6 @@ def calculate_monthly_costs(trips):
 
     return results
 
-
-def _calculate_jannis_fuel_delta(month_trips):
-    total = 0
-    for trip in month_trips:
-        if trip["fuel_start"] is not None and trip["fuel_end"] is not None:
-            total += trip["fuel_end"] - trip["fuel_start"]
-    return total
-
-
-def _calculate_lukas_fuel_delta(month_trips):
-    total = 0
-    for i in range(1, len(month_trips)):
-        prev_fuel_end = month_trips[i - 1]["fuel_end"]
-        curr_fuel_start = month_trips[i]["fuel_start"]
-        if prev_fuel_end is not None and curr_fuel_start is not None:
-            total += curr_fuel_start - prev_fuel_end
-    return total
 
 
 def __check_invalid_kilometers(trips_sorted: list[Any]):

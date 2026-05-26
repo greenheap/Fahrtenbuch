@@ -1,6 +1,7 @@
 import pytest
 
-from calculator import calculate_monthly_costs, MONTHLY_PAUSCHALE, FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
+from calculator import calculate_monthly_costs, MONTHLY_PAUSCHALE
+from fuel_calculator import FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
 
 
 def test_empty_list():
