@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Any
 
-from fuel_calculator import calculate_jannis_fuel_debt, calculate_lukas_fuel_debt, FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
+from fuel_calculator import calculate_owner_fuel_debt, calculate_renter_fuel_debt, FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
 
 YEARLY_PAUSCHALE = 2600.0
 MONTHLY_PAUSCHALE = YEARLY_PAUSCHALE / 12
@@ -49,27 +49,27 @@ def calculate_monthly_costs(trips):
 
         # Total km driven this month from odometer
         if prev_last_km is not None and prev_last_km < first_km_start:
-            # Odometer gap at month start: include it as Lukas km
+            # Odometer gap at month start: include it as renter km
             total_km = last_km_end - prev_last_km
         else:
             total_km = last_km_end - first_km_start
 
-        jannis_km = sum(t["jannis_km"] for t in month_trips)
-        lukas_km = max(0.0, total_km - jannis_km)
+        owner_km = sum(t["owner_km"] for t in month_trips)
+        renter_km = max(0.0, total_km - owner_km)
 
         prev_last_km = last_km_end
 
-        j_fuel_debt = calculate_jannis_fuel_debt(month_trips)
-        l_fuel_debt = calculate_lukas_fuel_debt(month_trips)
+        o_fuel_debt = calculate_owner_fuel_debt(month_trips)
+        r_fuel_debt = calculate_renter_fuel_debt(month_trips)
 
         if total_km == 0:
-            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, j_fuel_debt, l_fuel_debt))
+            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, o_fuel_debt, r_fuel_debt))
         else:
-            jannis_km_percentage = jannis_km / total_km * 100
-            lukas_km_percentage = lukas_km / total_km * 100
-            jannis_costs = MONTHLY_PAUSCHALE * (jannis_km / total_km)
-            lukas_costs = MONTHLY_PAUSCHALE * (lukas_km / total_km)
-            results.append((month, jannis_km, jannis_km_percentage, jannis_costs, lukas_km, lukas_km_percentage, lukas_costs, j_fuel_debt, l_fuel_debt))
+            owner_km_percentage = owner_km / total_km * 100
+            renter_km_percentage = renter_km / total_km * 100
+            owner_costs = MONTHLY_PAUSCHALE * (owner_km / total_km)
+            renter_costs = MONTHLY_PAUSCHALE * (renter_km / total_km)
+            results.append((month, owner_km, owner_km_percentage, owner_costs, renter_km, renter_km_percentage, renter_costs, o_fuel_debt, r_fuel_debt))
 
     return results
 

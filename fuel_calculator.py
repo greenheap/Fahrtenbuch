@@ -2,13 +2,13 @@ FUEL_COST_PER_LITRE = 2.00
 TOTAL_FUEL_CAPACITY = 54
 
 
-def calculate_jannis_fuel_debt(month_trips):
-    delta = __calculate_jannis_fuel_delta(month_trips)
+def calculate_owner_fuel_debt(month_trips):
+    delta = __calculate_owner_fuel_delta(month_trips)
     return round(-delta * __litres_per_unit() * FUEL_COST_PER_LITRE, 2)
 
 
-def calculate_lukas_fuel_debt(month_trips):
-    delta = __calculate_lukas_fuel_delta(month_trips)
+def calculate_renter_fuel_debt(month_trips):
+    delta = __calculate_renter_fuel_delta(month_trips)
     return round(-delta * __litres_per_unit() * FUEL_COST_PER_LITRE, 2)
 
 
@@ -16,7 +16,7 @@ def __litres_per_unit():
     return TOTAL_FUEL_CAPACITY / 20
 
 
-def __calculate_jannis_fuel_delta(month_trips):
+def __calculate_owner_fuel_delta(month_trips):
     total = 0
     for trip in month_trips:
         if trip["fuel_start"] is not None and trip["fuel_end"] is not None:
@@ -24,7 +24,7 @@ def __calculate_jannis_fuel_delta(month_trips):
     return total
 
 
-def __calculate_lukas_fuel_delta(month_trips):
+def __calculate_renter_fuel_delta(month_trips):
     total = 0
     for i in range(1, len(month_trips)):
         prev_fuel_end = month_trips[i - 1]["fuel_end"]
