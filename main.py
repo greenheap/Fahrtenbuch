@@ -1,5 +1,6 @@
 import csv
 from calculator import calculate_monthly_costs, YEARLY_PAUSCHALE, MONTHLY_PAUSCHALE, FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
+from report_calculator import calculate_report
 
 OWNER_NAME = "Jannis"
 RENTER_NAME = "Lukas"
@@ -62,32 +63,19 @@ def _parse_fuel(raw, row_index, field_name):
 
 
 def print_report(results):
+    report = calculate_report(results)
     print(f"Fahrtenbuch - Monatliche Kostenaufteilung (Pauschale: {YEARLY_PAUSCHALE:.0f} EUR/Jahr)")
     print(f"Monatlicher Betrag: {MONTHLY_PAUSCHALE:.2f} EUR  |  Kraftstoff: {FUEL_COST_PER_LITRE:.2f} EUR/Liter  |  Tank: {TOTAL_FUEL_CAPACITY} Liter")
     print("-" * 136)
     print(f"{'Monat':<10} | {f'{OWNER_NAME} km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8} | {f'{RENTER_NAME} km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8} | {f'Schulden {RENTER_NAME}':>14} |")
     print("-" * 136)
 
-    total_owner_cost = 0.0
-    total_renter_cost = 0.0
-    total_owner_fuel = 0.0
-    total_renter_fuel = 0.0
-
-    for month, owner_km, owner_percentage, owner_cost, renter_km, renter_percentage, renter_cost, owner_fuel_debt, renter_fuel_debt in results:
-        total_owner_cost += owner_cost
-        total_renter_cost += renter_cost
-        total_owner_fuel += owner_fuel_debt
-        total_renter_fuel += renter_fuel_debt
-        owner_total = owner_cost + owner_fuel_debt
-        renter_total = renter_cost + renter_fuel_debt
-        renter_debt = renter_total - owner_fuel_debt
-        print(f"{month:<10} | {owner_km:>10.1f} {owner_percentage:>5.1f}% {owner_cost:>8.2f} {owner_fuel_debt:>8.2f} {owner_total:>8.2f} | {renter_km:>10.1f} {renter_percentage:>5.1f}% {renter_cost:>8.2f} {renter_fuel_debt:>8.2f} {renter_total:>8.2f} | {renter_debt:>14.2f} |")
+    for row in report["rows"]:
+        print(f"{row['month']:<10} | {row['owner_km']:>10.1f} {row['owner_percentage']:>5.1f}% {row['owner_cost']:>8.2f} {row['owner_fuel_debt']:>8.2f} {row['owner_total']:>8.2f} | {row['renter_km']:>10.1f} {row['renter_percentage']:>5.1f}% {row['renter_cost']:>8.2f} {row['renter_fuel_debt']:>8.2f} {row['renter_total']:>8.2f} | {row['renter_debt']:>14.2f} |")
 
     print("-" * 136)
-    owner_grand_total = total_owner_cost + total_owner_fuel
-    renter_grand_total = total_renter_cost + total_renter_fuel
-    grand_schulden_renter = renter_grand_total - total_owner_fuel
-    print(f"{'GESAMT':<10} | {'':>10} {'':>6} {total_owner_cost:>8.2f} {total_owner_fuel:>8.2f} {owner_grand_total:>8.2f} | {'':>10} {'':>6} {total_renter_cost:>8.2f} {total_renter_fuel:>8.2f} {renter_grand_total:>8.2f} | {grand_schulden_renter:>14.2f} |")
+    totals = report["totals"]
+    print(f"{'GESAMT':<10} | {'':>10} {'':>6} {totals['total_owner_cost']:>8.2f} {totals['total_owner_fuel']:>8.2f} {totals['owner_grand_total']:>8.2f} | {'':>10} {'':>6} {totals['total_renter_cost']:>8.2f} {totals['total_renter_fuel']:>8.2f} {totals['renter_grand_total']:>8.2f} | {totals['grand_renter_debt']:>14.2f} |")
 
 
 if __name__ == "__main__":

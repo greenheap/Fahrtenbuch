@@ -69,7 +69,15 @@ def calculate_monthly_costs(trips):
             renter_km_percentage = renter_km / total_km * 100
             owner_costs = MONTHLY_PAUSCHALE * (owner_km / total_km)
             renter_costs = MONTHLY_PAUSCHALE * (renter_km / total_km)
-            results.append((month, owner_km, owner_km_percentage, owner_costs, renter_km, renter_km_percentage, renter_costs, owner_fuel_debt, renter_fuel_debt))
+            results.append((month,
+                             owner_km,
+                             owner_km_percentage,
+                             owner_costs,
+                             renter_km,
+                             renter_km_percentage,
+                             renter_costs,
+                             owner_fuel_debt,
+                             renter_fuel_debt))
 
     return results
 
