@@ -47,8 +47,8 @@ def calculate_monthly_costs(trips) -> list[MonthlyCostResult]:
             m = 1
             y += 1
 
-    # Track running odometer across months to detect gaps
     prev_last_km = None
+    prev_month_fuel_end = None
 
     results = []
     for month in months_range:
@@ -61,9 +61,7 @@ def calculate_monthly_costs(trips) -> list[MonthlyCostResult]:
         first_km_start = month_trips[0]["km_start"]
         last_km_end = month_trips[-1]["km_end"]
 
-        # Total km driven this month from odometer
         if prev_last_km is not None and prev_last_km < first_km_start:
-            # Odometer gap at month start: include it as renter km
             total_km = last_km_end - prev_last_km
         else:
             total_km = last_km_end - first_km_start
@@ -74,10 +72,21 @@ def calculate_monthly_costs(trips) -> list[MonthlyCostResult]:
         prev_last_km = last_km_end
 
         owner_fuel_debt = calculate_owner_fuel_debt(month_trips)
-        renter_fuel_debt = calculate_renter_fuel_debt(month_trips)
+        renter_fuel_debt = calculate_renter_fuel_debt(month_trips, prev_month_fuel_end)
+
+        last_trip_with_fuel = next((t for t in reversed(month_trips) if t["fuel_end"] is not None), None)
+        prev_month_fuel_end = last_trip_with_fuel["fuel_end"] if last_trip_with_fuel else prev_month_fuel_end
 
         if total_km == 0:
-            results.append(MonthlyCostResult(month=month, owner_km=0.0, owner_km_percentage=0.0, owner_costs=0.0, renter_km=0.0, renter_km_percentage=0.0, renter_costs=0.0, owner_fuel_debt=owner_fuel_debt, renter_fuel_debt=renter_fuel_debt))
+            results.append(MonthlyCostResult(month=month,
+                                             owner_km=0.0,
+                                             owner_km_percentage=0.0,
+                                             owner_costs=0.0,
+                                             renter_km=0.0,
+                                             renter_km_percentage=0.0,
+                                             renter_costs=0.0,
+                                             owner_fuel_debt=owner_fuel_debt,
+                                             renter_fuel_debt=renter_fuel_debt))
         else:
             owner_km_percentage = owner_km / total_km * 100
             renter_km_percentage = renter_km / total_km * 100

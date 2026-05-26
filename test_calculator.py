@@ -105,3 +105,17 @@ def test_75_percentage_split():
     assert round(result.renter_km_percentage, 1) == 25.0
     assert round(result.owner_costs, 2) == round(MONTHLY_PAUSCHALE * 0.75, 2)
     assert round(result.renter_costs, 2) == round(MONTHLY_PAUSCHALE * 0.25, 2)
+
+
+def test_given_fuel_drop_between_months_then_renter_fuel_debt_is_charged_in_second_month():
+    trips = [
+        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": 10, "fuel_end": 12},
+        {"datum": "2026-06-01", "month": "2026-06", "km_start": 1200.0, "km_end": 1300.0, "owner_km": 100.0, "fuel_start": 0, "fuel_end": 0},
+    ]
+
+    results = calculate_monthly_costs(trips)
+
+    may_result = results[0]
+    june_result = results[1]
+    assert may_result.renter_fuel_debt == 0.0
+    assert june_result.renter_fuel_debt == round(12 * (TOTAL_FUEL_CAPACITY / 20) * FUEL_COST_PER_LITRE, 2)

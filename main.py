@@ -53,7 +53,7 @@ def _parse_fuel(raw, row_index, field_name):
         return None
     try:
         value = int(raw)
-        if not (1 <= value <= 20):
+        if not (0 <= value <= 20):
             print(f"WARNUNG Zeile {row_index}: {field_name} '{raw}' außerhalb 1-20 - wird ignoriert.")
             return None
         return value
