@@ -69,6 +69,13 @@ def calculate_monthly_costs(trips):
 
 
 def __check_invalid_kilometers(trips_sorted: list[Any]):
+    for i, trip in enumerate(trips_sorted, start=1):
+        if trip["km_end"] < trip["km_start"]:
+            raise ValueError(
+                f"Ungültige km-Werte in Eintrag {i}: km_end={trip['km_end']} "
+                f"kleiner als km_start={trip['km_start']}."
+            )
+
     for i in range(1, len(trips_sorted)):
         prev_end = trips_sorted[i - 1]["km_end"]
         curr_start = trips_sorted[i]["km_start"]
