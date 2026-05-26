@@ -10,8 +10,8 @@ def test_empty_list():
 
 def test_given_first_trip_km_start_equals_second_trip_km_start_then_throw_exception():
     trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": None, "fuel_end": None},
-        {"datum": "2026-05-10", "month": "2026-05", "km_start": 1000.0, "km_end": 1400.0, "owner_km": 200.0, "fuel_start": None, "fuel_end": None},
+        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": 10, "fuel_end": 10},
+        {"datum": "2026-05-10", "month": "2026-05", "km_start": 1000.0, "km_end": 1400.0, "owner_km": 200.0, "fuel_start": 10, "fuel_end": 10},
     ]
 
     with pytest.raises(ValueError):
@@ -20,7 +20,7 @@ def test_given_first_trip_km_start_equals_second_trip_km_start_then_throw_except
 
 def test_given_trip_with_km_end_less_than_km_start_then_throw_exception():
     trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1100.0, "km_end": 1000.0, "owner_km": -100.0, "fuel_start": None, "fuel_end": None},
+        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1100.0, "km_end": 1000.0, "owner_km": -100.0, "fuel_start": 10, "fuel_end": 10},
     ]
 
     with pytest.raises(ValueError):
@@ -29,23 +29,12 @@ def test_given_trip_with_km_end_less_than_km_start_then_throw_exception():
 
 def test_given_second_trip_km_start_before_first_trip_km_end_then_throw_exception():
     trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1200.0, "owner_km": 200.0, "fuel_start": None, "fuel_end": None},
-        {"datum": "2026-05-10", "month": "2026-05", "km_start": 1150.0, "km_end": 1400.0, "owner_km": 250.0, "fuel_start": None, "fuel_end": None},
+        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1200.0, "owner_km": 200.0, "fuel_start": 10, "fuel_end": 10},
+        {"datum": "2026-05-10", "month": "2026-05", "km_start": 1150.0, "km_end": 1400.0, "owner_km": 250.0, "fuel_start": 10, "fuel_end": 10},
     ]
 
     with pytest.raises(ValueError):
         calculate_monthly_costs(trips)
-
-
-def test_given_no_fuel_data_then_fuel_debt_is_zero():
-    trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": None, "fuel_end": None},
-    ]
-
-    results = calculate_monthly_costs(trips)
-
-    assert results[0].owner_fuel_debt == 0.0
-    assert results[0].renter_fuel_debt == 0.0
 
 
 def test_given_owner_returns_car_with_less_fuel_then_owner_has_fuel_debt():
@@ -72,7 +61,7 @@ def test_given_renter_drives_between_trips_and_returns_less_fuel_then_renter_has
 
 def test_100_percent():
     trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": None, "fuel_end": None},
+        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": 1, "fuel_end": 2},
     ]
 
     results = calculate_monthly_costs(trips)
@@ -90,8 +79,8 @@ def test_100_percent():
 
 def test_75_percentage_split():
     trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": None, "fuel_end": None},
-        {"datum": "2026-05-10", "month": "2026-05", "km_start": 1200.0, "km_end": 1400.0, "owner_km": 200.0, "fuel_start": None, "fuel_end": None},
+        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": 0, "fuel_end": 0},
+        {"datum": "2026-05-10", "month": "2026-05", "km_start": 1200.0, "km_end": 1400.0, "owner_km": 200.0, "fuel_start": 0, "fuel_end": 0},
     ]
 
     results = calculate_monthly_costs(trips)

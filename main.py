@@ -30,9 +30,8 @@ def load_trips(filepath="fahrtenbuch.csv"):
             fuel_start = _parse_fuel(row.get("fuel_start(1-20)", "").strip(), i, "fuel_start")
             fuel_end = _parse_fuel(row.get("fuel_end(1-20)", "").strip(), i, "fuel_end")
 
-            if fuel_end is not None and fuel_start is None:
-                print(f"WARNUNG Zeile {i}: fuel_end ohne fuel_start angegeben - Kraftstoff wird ignoriert.")
-                fuel_end = None
+            if fuel_start is None or fuel_end is None:
+                raise ValueError(f"Zeile {i}: fuel_start und fuel_end sind Pflichtfelder.")
 
             month = datum[:7]
             trips.append({
@@ -54,12 +53,10 @@ def _parse_fuel(raw, row_index, field_name):
     try:
         value = int(raw)
         if not (0 <= value <= 20):
-            print(f"WARNUNG Zeile {row_index}: {field_name} '{raw}' außerhalb 1-20 - wird ignoriert.")
-            return None
+            raise ValueError(f"Zeile {row_index}: {field_name} '{raw}' außerhalb 0-20.")
         return value
     except ValueError:
-        print(f"WARNUNG Zeile {row_index}: Ungültiger {field_name} '{raw}' - wird ignoriert.")
-        return None
+        raise ValueError(f"Zeile {row_index}: Ungültiger {field_name} '{raw}'.")
 
 
 def print_report(results):

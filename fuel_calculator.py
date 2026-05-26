@@ -19,19 +19,14 @@ def __get_litres_per_unit():
 def __calculate_owner_fuel_delta(month_trips):
     total = 0
     for trip in month_trips:
-        if trip["fuel_start"] is not None and trip["fuel_end"] is not None:
-            total += trip["fuel_end"] - trip["fuel_start"]
+        total += trip["fuel_end"] - trip["fuel_start"]
     return total
 
 
 def __calculate_renter_fuel_delta(month_trips, prev_month_fuel_end=None):
     total = 0
-    if prev_month_fuel_end is not None and month_trips and month_trips[0]["fuel_start"] is not None:
+    if prev_month_fuel_end is not None and month_trips:
         total += month_trips[0]["fuel_start"] - prev_month_fuel_end
     for i in range(1, len(month_trips)):
-        prev_fuel_end = month_trips[i - 1]["fuel_end"]
-        curr_fuel_start = month_trips[i]["fuel_start"]
-        if prev_fuel_end is not None and curr_fuel_start is not None:
-            total += curr_fuel_start - prev_fuel_end
+        total += month_trips[i]["fuel_start"] - month_trips[i - 1]["fuel_end"]
     return total
-
