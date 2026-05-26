@@ -68,26 +68,26 @@ def print_report(results):
     print(f"{'Monat':<10} | {f'{OWNER_NAME} km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8} | {f'{RENTER_NAME} km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8} | {f'Schulden {RENTER_NAME}':>14} |")
     print("-" * 136)
 
-    total_o_cost = 0.0
-    total_r_cost = 0.0
-    total_o_fuel = 0.0
-    total_r_fuel = 0.0
+    total_owner_cost = 0.0
+    total_renter_cost = 0.0
+    total_owner_fuel = 0.0
+    total_renter_fuel = 0.0
 
-    for month, o_km, o_pct, o_cost, r_km, r_pct, r_cost, o_fuel_debt, r_fuel_debt in results:
-        total_o_cost += o_cost
-        total_r_cost += r_cost
-        total_o_fuel += o_fuel_debt
-        total_r_fuel += r_fuel_debt
-        o_total = o_cost + o_fuel_debt
-        r_total = r_cost + r_fuel_debt
-        schulden_renter = r_total - o_fuel_debt
-        print(f"{month:<10} | {o_km:>10.1f} {o_pct:>5.1f}% {o_cost:>8.2f} {o_fuel_debt:>8.2f} {o_total:>8.2f} | {r_km:>10.1f} {r_pct:>5.1f}% {r_cost:>8.2f} {r_fuel_debt:>8.2f} {r_total:>8.2f} | {schulden_renter:>14.2f} |")
+    for month, owner_km, owner_percentage, owner_cost, renter_km, renter_percentage, renter_cost, owner_fuel_debt, renter_fuel_debt in results:
+        total_owner_cost += owner_cost
+        total_renter_cost += renter_cost
+        total_owner_fuel += owner_fuel_debt
+        total_renter_fuel += renter_fuel_debt
+        owner_total = owner_cost + owner_fuel_debt
+        renter_total = renter_cost + renter_fuel_debt
+        renter_debt = renter_total - owner_fuel_debt
+        print(f"{month:<10} | {owner_km:>10.1f} {owner_percentage:>5.1f}% {owner_cost:>8.2f} {owner_fuel_debt:>8.2f} {owner_total:>8.2f} | {renter_km:>10.1f} {renter_percentage:>5.1f}% {renter_cost:>8.2f} {renter_fuel_debt:>8.2f} {renter_total:>8.2f} | {renter_debt:>14.2f} |")
 
     print("-" * 136)
-    o_grand_total = total_o_cost + total_o_fuel
-    r_grand_total = total_r_cost + total_r_fuel
-    grand_schulden_renter = r_grand_total - total_o_fuel
-    print(f"{'GESAMT':<10} | {'':>10} {'':>6} {total_o_cost:>8.2f} {total_o_fuel:>8.2f} {o_grand_total:>8.2f} | {'':>10} {'':>6} {total_r_cost:>8.2f} {total_r_fuel:>8.2f} {r_grand_total:>8.2f} | {grand_schulden_renter:>14.2f} |")
+    owner_grand_total = total_owner_cost + total_owner_fuel
+    renter_grand_total = total_renter_cost + total_renter_fuel
+    grand_schulden_renter = renter_grand_total - total_owner_fuel
+    print(f"{'GESAMT':<10} | {'':>10} {'':>6} {total_owner_cost:>8.2f} {total_owner_fuel:>8.2f} {owner_grand_total:>8.2f} | {'':>10} {'':>6} {total_renter_cost:>8.2f} {total_renter_fuel:>8.2f} {renter_grand_total:>8.2f} | {grand_schulden_renter:>14.2f} |")
 
 
 if __name__ == "__main__":

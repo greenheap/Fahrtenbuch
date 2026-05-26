@@ -3,16 +3,16 @@ TOTAL_FUEL_CAPACITY = 54
 
 
 def calculate_owner_fuel_debt(month_trips):
-    delta = __calculate_owner_fuel_delta(month_trips)
-    return round(-delta * __litres_per_unit() * FUEL_COST_PER_LITRE, 2)
+    fuel_delta = __calculate_owner_fuel_delta(month_trips)
+    return round(-fuel_delta * __get_litres_per_unit() * FUEL_COST_PER_LITRE, 2)
 
 
 def calculate_renter_fuel_debt(month_trips):
-    delta = __calculate_renter_fuel_delta(month_trips)
-    return round(-delta * __litres_per_unit() * FUEL_COST_PER_LITRE, 2)
+    fuel_delta = __calculate_renter_fuel_delta(month_trips)
+    return round(-fuel_delta * __get_litres_per_unit() * FUEL_COST_PER_LITRE, 2)
 
 
-def __litres_per_unit():
+def __get_litres_per_unit():
     return TOTAL_FUEL_CAPACITY / 20
 
 

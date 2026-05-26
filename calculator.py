@@ -59,17 +59,17 @@ def calculate_monthly_costs(trips):
 
         prev_last_km = last_km_end
 
-        o_fuel_debt = calculate_owner_fuel_debt(month_trips)
-        r_fuel_debt = calculate_renter_fuel_debt(month_trips)
+        owner_fuel_debt = calculate_owner_fuel_debt(month_trips)
+        renter_fuel_debt = calculate_renter_fuel_debt(month_trips)
 
         if total_km == 0:
-            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, o_fuel_debt, r_fuel_debt))
+            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, owner_fuel_debt, renter_fuel_debt))
         else:
             owner_km_percentage = owner_km / total_km * 100
             renter_km_percentage = renter_km / total_km * 100
             owner_costs = MONTHLY_PAUSCHALE * (owner_km / total_km)
             renter_costs = MONTHLY_PAUSCHALE * (renter_km / total_km)
-            results.append((month, owner_km, owner_km_percentage, owner_costs, renter_km, renter_km_percentage, renter_costs, o_fuel_debt, r_fuel_debt))
+            results.append((month, owner_km, owner_km_percentage, owner_costs, renter_km, renter_km_percentage, renter_costs, owner_fuel_debt, renter_fuel_debt))
 
     return results
 
