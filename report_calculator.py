@@ -1,5 +1,8 @@
-def calculate_report(results):
-    rows = [__calculate_row(*result) for result in results]
+from calculator import MonthlyCostResult
+
+
+def calculate_report(results: list[MonthlyCostResult]):
+    rows = [_calculate_row(result) for result in results]
     total_owner_cost = sum(row["owner_cost"] for row in rows)
     total_renter_cost = sum(row["renter_cost"] for row in rows)
     total_owner_fuel = sum(row["owner_fuel_debt"] for row in rows)
@@ -21,22 +24,21 @@ def calculate_report(results):
     }
 
 
-def __calculate_row(month, owner_km, owner_percentage, owner_cost, renter_km, renter_percentage, renter_cost, owner_fuel_debt, renter_fuel_debt):
-    owner_total = owner_cost + owner_fuel_debt
-    renter_total = renter_cost + renter_fuel_debt
-    renter_debt = renter_total - owner_fuel_debt
+def _calculate_row(result: MonthlyCostResult):
+    owner_total = result.owner_costs + result.owner_fuel_debt
+    renter_total = result.renter_costs + result.renter_fuel_debt
+    renter_debt = renter_total - result.owner_fuel_debt
     return {
-        "month": month,
-        "owner_km": owner_km,
-        "owner_percentage": owner_percentage,
-        "owner_cost": owner_cost,
-        "owner_fuel_debt": owner_fuel_debt,
+        "month": result.month,
+        "owner_km": result.owner_km,
+        "owner_percentage": result.owner_km_percentage,
+        "owner_cost": result.owner_costs,
+        "owner_fuel_debt": result.owner_fuel_debt,
         "owner_total": owner_total,
-        "renter_km": renter_km,
-        "renter_percentage": renter_percentage,
-        "renter_cost": renter_cost,
-        "renter_fuel_debt": renter_fuel_debt,
+        "renter_km": result.renter_km,
+        "renter_percentage": result.renter_km_percentage,
+        "renter_cost": result.renter_costs,
+        "renter_fuel_debt": result.renter_fuel_debt,
         "renter_total": renter_total,
         "renter_debt": renter_debt,
     }
-

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import Any
 
 from fuel_calculator import calculate_owner_fuel_debt, calculate_renter_fuel_debt, FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
@@ -7,7 +8,20 @@ YEARLY_PAUSCHALE = 2600.0
 MONTHLY_PAUSCHALE = YEARLY_PAUSCHALE / 12
 
 
-def calculate_monthly_costs(trips):
+@dataclass
+class MonthlyCostResult:
+    month: str
+    owner_km: float
+    owner_km_percentage: float
+    owner_costs: float
+    renter_km: float
+    renter_km_percentage: float
+    renter_costs: float
+    owner_fuel_debt: float
+    renter_fuel_debt: float
+
+
+def calculate_monthly_costs(trips) -> list[MonthlyCostResult]:
     if not trips:
         return []
 
@@ -41,7 +55,7 @@ def calculate_monthly_costs(trips):
         month_trips = months_trips.get(month, [])
 
         if not month_trips:
-            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+            results.append(MonthlyCostResult(month=month, owner_km=0.0, owner_km_percentage=0.0, owner_costs=0.0, renter_km=0.0, renter_km_percentage=0.0, renter_costs=0.0, owner_fuel_debt=0.0, renter_fuel_debt=0.0))
             continue
 
         first_km_start = month_trips[0]["km_start"]
@@ -63,21 +77,23 @@ def calculate_monthly_costs(trips):
         renter_fuel_debt = calculate_renter_fuel_debt(month_trips)
 
         if total_km == 0:
-            results.append((month, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, owner_fuel_debt, renter_fuel_debt))
+            results.append(MonthlyCostResult(month=month, owner_km=0.0, owner_km_percentage=0.0, owner_costs=0.0, renter_km=0.0, renter_km_percentage=0.0, renter_costs=0.0, owner_fuel_debt=owner_fuel_debt, renter_fuel_debt=renter_fuel_debt))
         else:
             owner_km_percentage = owner_km / total_km * 100
             renter_km_percentage = renter_km / total_km * 100
             owner_costs = MONTHLY_PAUSCHALE * (owner_km / total_km)
             renter_costs = MONTHLY_PAUSCHALE * (renter_km / total_km)
-            results.append((month,
-                             owner_km,
-                             owner_km_percentage,
-                             owner_costs,
-                             renter_km,
-                             renter_km_percentage,
-                             renter_costs,
-                             owner_fuel_debt,
-                             renter_fuel_debt))
+            results.append(MonthlyCostResult(
+                month=month,
+                owner_km=owner_km,
+                owner_km_percentage=owner_km_percentage,
+                owner_costs=owner_costs,
+                renter_km=renter_km,
+                renter_km_percentage=renter_km_percentage,
+                renter_costs=renter_costs,
+                owner_fuel_debt=owner_fuel_debt,
+                renter_fuel_debt=renter_fuel_debt,
+            ))
 
     return results
 

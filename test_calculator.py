@@ -44,9 +44,8 @@ def test_given_no_fuel_data_then_fuel_debt_is_zero():
 
     results = calculate_monthly_costs(trips)
 
-    month, owner_km, owner_percentage, owner_cost, renter_km, renter_percentage, renter_cost, owner_fuel_debt, renter_fuel_debt = results[0]
-    assert owner_fuel_debt == 0.0
-    assert renter_fuel_debt == 0.0
+    assert results[0].owner_fuel_debt == 0.0
+    assert results[0].renter_fuel_debt == 0.0
 
 
 def test_given_owner_returns_car_with_less_fuel_then_owner_has_fuel_debt():
@@ -56,9 +55,8 @@ def test_given_owner_returns_car_with_less_fuel_then_owner_has_fuel_debt():
 
     results = calculate_monthly_costs(trips)
 
-    month, owner_km, owner_percentage, owner_cost, renter_km, renter_percentage, renter_cost, owner_fuel_debt, renter_fuel_debt = results[0]
-    assert owner_fuel_debt == round(10 * (TOTAL_FUEL_CAPACITY / 20) * FUEL_COST_PER_LITRE, 2)
-    assert renter_fuel_debt == 0.0
+    assert results[0].owner_fuel_debt == round(10 * (TOTAL_FUEL_CAPACITY / 20) * FUEL_COST_PER_LITRE, 2)
+    assert results[0].renter_fuel_debt == 0.0
 
 def test_given_renter_drives_between_trips_and_returns_less_fuel_then_renter_has_fuel_debt():
     trips = [
@@ -68,9 +66,8 @@ def test_given_renter_drives_between_trips_and_returns_less_fuel_then_renter_has
 
     results = calculate_monthly_costs(trips)
 
-    month, owner_km, owner_percentage, owner_cost, renter_km, renter_percentage, renter_cost, owner_fuel_debt, renter_fuel_debt = results[0]
-    assert owner_fuel_debt == 0.0
-    assert renter_fuel_debt == round(3 * (TOTAL_FUEL_CAPACITY / 20) * FUEL_COST_PER_LITRE, 2)
+    assert results[0].owner_fuel_debt == 0.0
+    assert results[0].renter_fuel_debt == round(3 * (TOTAL_FUEL_CAPACITY / 20) * FUEL_COST_PER_LITRE, 2)
 
 
 def test_100_percent():
@@ -81,15 +78,14 @@ def test_100_percent():
     results = calculate_monthly_costs(trips)
 
     assert len(results) == 1
-    month, owner_km, owner_percentage, owner_costs, renter_km, renter_percentage, renter_costs, owner_fuel_debt, renter_fuel_debt = results[0]
-
-    assert month == "2026-05"
-    assert owner_km == 100.0
-    assert renter_km == 0.0
-    assert round(owner_percentage, 1) == 100.0
-    assert round(renter_percentage, 1) == 0.0
-    assert round(owner_costs, 2) == round(MONTHLY_PAUSCHALE * 1.0, 2)
-    assert round(renter_costs, 2) == 0.0
+    result = results[0]
+    assert result.month == "2026-05"
+    assert result.owner_km == 100.0
+    assert result.renter_km == 0.0
+    assert round(result.owner_km_percentage, 1) == 100.0
+    assert round(result.renter_km_percentage, 1) == 0.0
+    assert round(result.owner_costs, 2) == round(MONTHLY_PAUSCHALE * 1.0, 2)
+    assert round(result.renter_costs, 2) == 0.0
 
 
 def test_75_percentage_split():
@@ -101,12 +97,11 @@ def test_75_percentage_split():
     results = calculate_monthly_costs(trips)
 
     assert len(results) == 1
-    month, owner_km, owner_percentage, owner_costs, renter_km, renter_percentage, renter_costs, owner_fuel_debt, renter_fuel_debt = results[0]
-
-    assert month == "2026-05"
-    assert owner_km == 300.0
-    assert renter_km == 100.0
-    assert round(owner_percentage, 1) == 75.0
-    assert round(renter_percentage, 1) == 25.0
-    assert round(owner_costs, 2) == round(MONTHLY_PAUSCHALE * 0.75, 2)
-    assert round(renter_costs, 2) == round(MONTHLY_PAUSCHALE * 0.25, 2)
+    result = results[0]
+    assert result.month == "2026-05"
+    assert result.owner_km == 300.0
+    assert result.renter_km == 100.0
+    assert round(result.owner_km_percentage, 1) == 75.0
+    assert round(result.renter_km_percentage, 1) == 25.0
+    assert round(result.owner_costs, 2) == round(MONTHLY_PAUSCHALE * 0.75, 2)
+    assert round(result.renter_costs, 2) == round(MONTHLY_PAUSCHALE * 0.25, 2)
