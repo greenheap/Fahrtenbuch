@@ -55,7 +55,15 @@ def calculate_monthly_costs(trips) -> list[MonthlyCostResult]:
         month_trips = months_trips.get(month, [])
 
         if not month_trips:
-            results.append(MonthlyCostResult(month=month, owner_km=0.0, owner_km_percentage=0.0, owner_costs=0.0, renter_km=0.0, renter_km_percentage=0.0, renter_costs=0.0, owner_fuel_debt=0.0, renter_fuel_debt=0.0))
+            results.append(MonthlyCostResult(month=month,
+                                             owner_km=0.0,
+                                             owner_km_percentage=0.0,
+                                             owner_costs=0.0,
+                                             renter_km=0.0,
+                                             renter_km_percentage=0.0,
+                                             renter_costs=0.0,
+                                             owner_fuel_debt=0.0,
+                                             renter_fuel_debt=0.0))
             continue
 
         first_km_start = month_trips[0]["km_start"]
