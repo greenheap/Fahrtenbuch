@@ -8,20 +8,17 @@ def load_trips(filepath="fahrtenbuch.csv"):
         for i, row in enumerate(reader, start=2):
             datum = row["datum"].strip()
             if len(datum) != 10 or datum[4] != "-" or datum[7] != "-":
-                # TODO throw exception
-                print(f"WARNUNG Zeile {i}: Ungültiges Datum '{datum}' (Format YYYY-MM-DD erwartet) - Zeile wird übersprungen.")
-                continue
+                raise ValueError(f"Zeile {i}: Ungültiges Datum '{datum}' (Format YYYY-MM-DD erwartet).")
 
             try:
                 km_start = float(row["km_start"].strip())
                 km_end = float(row["km_end"].strip())
             except ValueError:
-                print(f"WARNUNG Zeile {i}: Ungültige km-Werte - Zeile wird übersprungen.")
-                continue
+                raise ValueError(f"Zeile {i}: Ungültige km-Werte.")
 
             if km_end < km_start:
                 print(f"WARNUNG Zeile {i}: km_end ({km_end}) < km_start ({km_start}) - Zeile wird übersprungen.")
-                continue
+                raise ValueError(f"Zeile {i}: Ungültige km-Werte.")
 
             fuel_start = _parse_fuel(row.get("fuel_start(1-20)", "").strip(), i, "fuel_start")
             fuel_end = _parse_fuel(row.get("fuel_end(1-20)", "").strip(), i, "fuel_end")

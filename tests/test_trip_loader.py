@@ -1,4 +1,3 @@
-import io
 import pytest
 from unittest.mock import patch, mock_open
 
@@ -56,23 +55,20 @@ def test_given_empty_csv_when_loading_then_returns_empty_list():
     assert result == []
 
 
-def test_given_invalid_date_format_when_loading_then_row_is_skipped():
+def test_given_invalid_date_format_when_loading_then_raises_value_error():
     csv_content = make_csv(["01.05.2026,1000,1100,10,10"])
 
     with patch("builtins.open", mock_open(read_data=csv_content)):
-        result = load_trips()
+        with pytest.raises(ValueError):
+            load_trips()
 
-    assert result == []
 
-
-def test_given_km_end_less_than_km_start_when_loading_then_row_is_skipped():
+def test_given_km_end_less_than_km_start_when_loading_then_raise_value_error():
     csv_content = make_csv(["2026-05-01,1100,1000,10,10"])
 
     with patch("builtins.open", mock_open(read_data=csv_content)):
-        result = load_trips()
-
-    assert result == []
-
+        with pytest.raises(ValueError):
+            load_trips()
 
 def test_given_valid_row_when_loading_then_returns_correct_trip():
     csv_content = make_csv(["2026-05-01,1000,1100,10,8"])

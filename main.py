@@ -1,4 +1,3 @@
-import csv
 from calculator import calculate_monthly_costs, YEARLY_PAUSCHALE, MONTHLY_PAUSCHALE, FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
 from report_calculator import calculate_report
 from trip_loader import load_trips
