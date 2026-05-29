@@ -11,8 +11,8 @@ class TripRepository:
             CREATE TABLE IF NOT EXISTS trips (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 datum TEXT NOT NULL,
-                km_start REAL NOT NULL,
-                km_end REAL NOT NULL,
+                km_start INTEGER NOT NULL,
+                km_end INTEGER NOT NULL,
                 fuel_start INTEGER NOT NULL,
                 fuel_end INTEGER NOT NULL,
                 fuel_price REAL
@@ -34,7 +34,7 @@ class TripRepository:
         row = cursor.fetchone()
         if row is None:
             return None
-        return row[0]
+        return int(row[0])
 
     def load_all_trips(self):
         cursor = self._connection.execute(
@@ -47,9 +47,9 @@ class TripRepository:
         return {
             "datum": datum,
             "month": datum[:7],
-            "km_start": km_start,
-            "km_end": km_end,
-            "owner_km": km_end - km_start,
+            "km_start": int(km_start),
+            "km_end": int(km_end),
+            "owner_km": int(km_end) - int(km_start),
             "fuel_start": fuel_start,
             "fuel_end": fuel_end,
             "fuel_price": fuel_price,
