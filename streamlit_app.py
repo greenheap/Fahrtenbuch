@@ -50,8 +50,8 @@ def render_add_trip_form(repository):
     latest_km_end = repository.get_latest_km_end() or 0.0
     with st.form("add_trip_form"):
         trip_date = st.date_input("Datum", value=date.today())
-        km_start = st.number_input("km Start", min_value=0.0, value=latest_km_end, step=5.0)
-        km_end = st.number_input("km Ende", min_value=0.0, value=latest_km_end, step=5.0)
+        km_start = st.number_input("km Start", min_value=0.0, value=latest_km_end, step=5.0, format="%d")
+        km_end = st.number_input("km Ende", min_value=0.0, value=latest_km_end, step=5.0, format="%d")
         fuel_start = st.number_input("Tank Start (0-20)", min_value=0, max_value=20, step=1)
         fuel_end = st.number_input("Tank Ende (0-20)", min_value=0, max_value=20, step=1)
         fuel_price_input = st.number_input("Benzinpreis EUR/L (optional, 0 = kein Eintrag)", min_value=0.0, step=0.1, format="%.2f")
