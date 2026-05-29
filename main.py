@@ -7,7 +7,7 @@ OWNER_NAME = "Jannis"
 RENTER_NAME = "Lukas"
 
 
-def print_report(results):
+def print_report(results, start_date=None):
     report = calculate_report(results)
     schulden_header = f"Schulden {RENTER_NAME}"
     hint_text = f"(Gesamt {RENTER_NAME} - Benzin {OWNER_NAME})"
@@ -16,6 +16,8 @@ def print_report(results):
     separator = "-" * separator_width
     print(f"Fahrtenbuch - Monatliche Kostenaufteilung (Pauschale: {YEARLY_PAUSCHALE:.0f} EUR/Jahr)")
     print(f"Monatlicher Betrag: {MONTHLY_PAUSCHALE:.2f} EUR  |  Tank: {TOTAL_FUEL_CAPACITY} Liter")
+    if start_date is not None:
+        print(f"Startdatum: {start_date.strftime('%d.%m.%Y')}")
     print(separator)
     print(f"{'Monat':<10} | {f'{OWNER_NAME} km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8} | {f'{RENTER_NAME} km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8} | {schulden_header:>{last_col_width}} |")
     print(f"{'':10} | {'':10} {'':6} {'':8} {'':8} {'':8} | {'':10} {'':6} {'':8} {'':8} {'':8} | {hint_text:>{last_col_width}} |")
@@ -32,7 +34,7 @@ def print_report(results):
 def run(filepath="fahrtenbuch.csv", start_date=None):
     results = load_trips_and_calculate_results(filepath, start_date)
     if results:
-        print_report(results)
+        print_report(results, start_date=start_date)
     else:
         print("Keine Fahrten gefunden.")
 
