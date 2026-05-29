@@ -1,4 +1,5 @@
-from calculator import calculate_monthly_costs, YEARLY_PAUSCHALE, MONTHLY_PAUSCHALE, DEFAULT_FUEL_PRICE_PER_LITRE, TOTAL_FUEL_CAPACITY
+from calculator import YEARLY_PAUSCHALE, MONTHLY_PAUSCHALE, calculate_monthly_costs, MonthlyCostResult
+from fuel_calculator import TOTAL_FUEL_CAPACITY
 from report_calculator import calculate_report
 from trip_loader import load_trips
 
@@ -28,11 +29,21 @@ def print_report(results):
     print(f"{'GESAMT':<10} | {'':>10} {'':>6} {totals['total_owner_cost']:>8.2f} {totals['total_owner_fuel']:>8.2f} {totals['owner_grand_total']:>8.2f} | {'':>10} {'':>6} {totals['total_renter_cost']:>8.2f} {totals['total_renter_fuel']:>8.2f} {totals['renter_grand_total']:>8.2f} | {totals['grand_renter_debt']:>{last_col_width}.2f} |")
 
 
-if __name__ == "__main__":
-    from datetime import date
-    trips = load_trips()
-    results = calculate_monthly_costs(trips, start_date=date(2026, 5, 25))
+def run(filepath="fahrtenbuch.csv", start_date=None):
+    results = load_trips_and_calculate_results(filepath, start_date)
     if results:
         print_report(results)
     else:
         print("Keine Fahrten gefunden.")
+
+
+def load_trips_and_calculate_results(filepath: str, start_date) -> list[MonthlyCostResult]:
+    trips = load_trips(filepath)
+    results = calculate_monthly_costs(trips, start_date=start_date)
+    return results
+
+
+if __name__ == "__main__":
+    from datetime import date
+    run(start_date=date(2026, 5, 25))
+
