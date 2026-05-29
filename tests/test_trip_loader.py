@@ -5,7 +5,7 @@ from trip_loader import load_trips, _parse_fuel
 
 
 def make_csv(rows):
-    header = "datum,km_start,km_end,fuel_start(1-20),fuel_end(1-20)\n"
+    header = "datum,km_start,km_end,fuel_start(1-20),fuel_end(1-20),fuel_price\n"
     return header + "\n".join(rows)
 
 
@@ -71,7 +71,7 @@ def test_given_km_end_less_than_km_start_when_loading_then_raise_value_error():
             load_trips()
 
 def test_given_valid_row_when_loading_then_returns_correct_trip():
-    csv_content = make_csv(["2026-05-01,1000,1100,10,8"])
+    csv_content = make_csv(["2026-05-01,1000,1100,10,8,2.40"])
 
     with patch("builtins.open", mock_open(read_data=csv_content)):
         result = load_trips()
@@ -85,6 +85,7 @@ def test_given_valid_row_when_loading_then_returns_correct_trip():
     assert trip["owner_km"] == 100.0
     assert trip["fuel_start"] == 10
     assert trip["fuel_end"] == 8
+    assert trip["fuel_price"] == 2.40
 
 
 def test_given_multiple_valid_rows_when_loading_then_returns_all_trips():
@@ -99,6 +100,7 @@ def test_given_multiple_valid_rows_when_loading_then_returns_all_trips():
     assert len(result) == 2
     assert result[0]["owner_km"] == 100.0
     assert result[1]["owner_km"] == 200.0
+    assert result[1]["fuel_price"] == 2.00
 
 
 def test_given_fuel_value_of_zero_when_parsing_then_returns_zero():

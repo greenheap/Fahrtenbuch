@@ -35,6 +35,7 @@ def load_trips(filepath="fahrtenbuch.csv"):
                 "owner_km": km_end - km_start,
                 "fuel_start": fuel_start,
                 "fuel_end": fuel_end,
+                "fuel_price": float(row["fuel_price"].strip()) if row.get("fuel_price") and row["fuel_price"].strip() else 2.00,
             })
 
     return trips
