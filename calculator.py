@@ -1,5 +1,7 @@
+import calendar
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from fuel_calculator import calculate_owner_fuel_debt, calculate_renter_fuel_debt, DEFAULT_FUEL_PRICE_PER_LITRE, TOTAL_FUEL_CAPACITY
@@ -21,7 +23,7 @@ class MonthlyCostResult:
     renter_fuel_debt: float
 
 
-def calculate_monthly_costs(trips) -> list[MonthlyCostResult]:
+def calculate_monthly_costs(trips, start_date: date = None) -> list[MonthlyCostResult]:
     if not trips:
         return []
 
@@ -49,11 +51,12 @@ def calculate_monthly_costs(trips) -> list[MonthlyCostResult]:
 
     prev_last_km = None
     prev_month_fuel_end = None
+    first_month = months_range[0]
 
     results = []
     for month in months_range:
         month_trips = months_trips.get(month, [])
-
+        effective_pauschale = __effective_pauschale_for_month(month, first_month, start_date)
         if not month_trips:
             results.append(MonthlyCostResult(month=month,
                                              owner_km=0.0,
@@ -98,8 +101,8 @@ def calculate_monthly_costs(trips) -> list[MonthlyCostResult]:
         else:
             owner_km_percentage = owner_km / total_km * 100
             renter_km_percentage = renter_km / total_km * 100
-            owner_costs = MONTHLY_PAUSCHALE * (owner_km / total_km)
-            renter_costs = MONTHLY_PAUSCHALE * (renter_km / total_km)
+            owner_costs = effective_pauschale * (owner_km / total_km)
+            renter_costs = effective_pauschale * (renter_km / total_km)
             results.append(MonthlyCostResult(
                 month=month,
                 owner_km=owner_km,
@@ -114,6 +117,14 @@ def calculate_monthly_costs(trips) -> list[MonthlyCostResult]:
 
     return results
 
+
+def __effective_pauschale_for_month(month: str, first_month: str, start_date: date) -> float:
+    if start_date is None or month != first_month:
+        return MONTHLY_PAUSCHALE
+    year, month_number = map(int, month.split("-"))
+    days_in_month = calendar.monthrange(year, month_number)[1]
+    days_used = days_in_month - start_date.day + 1
+    return MONTHLY_PAUSCHALE * (days_used / days_in_month)
 
 
 def __check_invalid_kilometers(trips_sorted: list[Any]):

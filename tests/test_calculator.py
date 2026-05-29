@@ -1,3 +1,6 @@
+import calendar
+from datetime import date
+
 import pytest
 
 from calculator import calculate_monthly_costs, MONTHLY_PAUSCHALE
@@ -174,3 +177,23 @@ def test_given_fuel_drop_between_months_then_renter_fuel_debt_is_charged_in_seco
     june_result = results[1]
     assert may_result.renter_fuel_debt == 0.0
     assert june_result.renter_fuel_debt == round(12 * (TOTAL_FUEL_CAPACITY / 20) * DEFAULT_FUEL_PRICE_PER_LITRE, 2)
+
+
+def test_given_start_date_mid_month_then_first_month_pauschale_is_charged_for_days_used_in_month():
+    trips = [
+        {"datum": "2026-05-25",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1100.0,
+         "owner_km": 100.0,
+         "fuel_start": 10,
+         "fuel_end": 10},
+    ]
+    start_date = date(2026, 5, 25)
+    days_in_may = calendar.monthrange(2026, 5)[1]
+    days_used = days_in_may - 25 + 1
+    expected_pauschale = MONTHLY_PAUSCHALE * (days_used / days_in_may)
+
+    results = calculate_monthly_costs(trips, start_date=start_date)
+
+    assert round(results[0].owner_costs, 2) == round(expected_pauschale, 2)

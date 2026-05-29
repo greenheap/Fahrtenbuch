@@ -29,8 +29,9 @@ def print_report(results):
 
 
 if __name__ == "__main__":
+    from datetime import date
     trips = load_trips()
-    results = calculate_monthly_costs(trips)
+    results = calculate_monthly_costs(trips, start_date=date(2026, 5, 25))
     if results:
         print_report(results)
     else:
