@@ -19,7 +19,15 @@ def test_given_empty_results_when_calculate_report_then_returns_empty_rows_and_z
 
 
 def test_given_single_row_with_zero_values_when_calculate_report_then_all_values_are_zero():
-    results = [MonthlyCostResult(month="2025-01", owner_km=0.0, owner_km_percentage=0.0, owner_costs=0.0, renter_km=0.0, renter_km_percentage=0.0, renter_costs=0.0, owner_fuel_debt=0.0, renter_fuel_debt=0.0)]
+    results = [MonthlyCostResult(month="2025-01",
+                                 owner_km=0.0,
+                                 owner_km_percentage=0.0,
+                                 owner_costs=0.0,
+                                 renter_km=0.0,
+                                 renter_km_percentage=0.0,
+                                 renter_costs=0.0,
+                                 owner_fuel_debt=0.0,
+                                 renter_fuel_debt=0.0)]
 
     report = calculate_report(results)
 
@@ -39,7 +47,15 @@ def test_given_single_row_with_zero_values_when_calculate_report_then_all_values
 
 
 def test_given_single_row_when_calculate_report_then_row_totals_are_computed_correctly():
-    results = [MonthlyCostResult(month="2025-01", owner_km=100.0, owner_km_percentage=50.0, owner_costs=108.33, renter_km=100.0, renter_km_percentage=50.0, renter_costs=108.33, owner_fuel_debt=10.80, renter_fuel_debt=5.40)]
+    results = [MonthlyCostResult(month="2025-01",
+                                 owner_km=100.0,
+                                 owner_km_percentage=50.0,
+                                 owner_costs=108.33,
+                                 renter_km=100.0,
+                                 renter_km_percentage=50.0,
+                                 renter_costs=108.33,
+                                 owner_fuel_debt=10.80,
+                                 renter_fuel_debt=5.40)]
 
     report = calculate_report(results)
 
@@ -56,13 +72,6 @@ def test_given_single_row_when_calculate_report_then_row_totals_are_computed_cor
     assert row["renter_fuel_debt"] == 5.40
     assert row["renter_total"] == pytest.approx(113.73)
     assert row["renter_debt"] == pytest.approx(102.93)
-
-
-def test_given_single_row_when_calculate_report_then_grand_totals_are_computed_correctly():
-    results = [MonthlyCostResult(month="2025-01", owner_km=100.0, owner_km_percentage=50.0, owner_costs=108.33, renter_km=100.0, renter_km_percentage=50.0, renter_costs=108.33, owner_fuel_debt=10.80, renter_fuel_debt=5.40)]
-
-    report = calculate_report(results)
-
     totals = report["totals"]
     assert totals["total_owner_cost"] == pytest.approx(108.33)
     assert totals["total_renter_cost"] == pytest.approx(108.33)
@@ -75,8 +84,24 @@ def test_given_single_row_when_calculate_report_then_grand_totals_are_computed_c
 
 def test_given_multiple_rows_when_calculate_report_then_grand_totals_sum_all_rows():
     results = [
-        MonthlyCostResult(month="2025-01", owner_km=100.0, owner_km_percentage=50.0, owner_costs=108.33, renter_km=100.0, renter_km_percentage=50.0, renter_costs=108.33, owner_fuel_debt=10.80, renter_fuel_debt=5.40),
-        MonthlyCostResult(month="2025-02", owner_km=200.0, owner_km_percentage=66.7, owner_costs=144.44, renter_km=100.0, renter_km_percentage=33.3, renter_costs=72.22, owner_fuel_debt=0.0, renter_fuel_debt=16.20),
+        MonthlyCostResult(month="2025-01",
+                          owner_km=100.0,
+                          owner_km_percentage=50.0,
+                          owner_costs=108.33,
+                          renter_km=100.0,
+                          renter_km_percentage=50.0,
+                          renter_costs=108.33,
+                          owner_fuel_debt=10.80,
+                          renter_fuel_debt=5.40),
+        MonthlyCostResult(month="2025-02",
+                          owner_km=200.0,
+                          owner_km_percentage=66.7,
+                          owner_costs=144.44,
+                          renter_km=100.0,
+                          renter_km_percentage=33.3,
+                          renter_costs=72.22,
+                          owner_fuel_debt=0.0,
+                          renter_fuel_debt=16.20),
     ]
 
     report = calculate_report(results)
@@ -93,8 +118,24 @@ def test_given_multiple_rows_when_calculate_report_then_grand_totals_sum_all_row
 
 def test_given_multiple_rows_when_calculate_report_then_each_row_is_mapped_correctly():
     results = [
-        MonthlyCostResult(month="2025-01", owner_km=100.0, owner_km_percentage=50.0, owner_costs=108.33, renter_km=100.0, renter_km_percentage=50.0, renter_costs=108.33, owner_fuel_debt=10.80, renter_fuel_debt=5.40),
-        MonthlyCostResult(month="2025-02", owner_km=200.0, owner_km_percentage=66.7, owner_costs=144.44, renter_km=100.0, renter_km_percentage=33.3, renter_costs=72.22, owner_fuel_debt=0.0, renter_fuel_debt=16.20),
+        MonthlyCostResult(month="2025-01",
+                          owner_km=100.0,
+                          owner_km_percentage=50.0,
+                          owner_costs=108.33,
+                          renter_km=100.0,
+                          renter_km_percentage=50.0,
+                          renter_costs=108.33,
+                          owner_fuel_debt=10.80,
+                          renter_fuel_debt=5.40),
+        MonthlyCostResult(month="2025-02",
+                          owner_km=200.0,
+                          owner_km_percentage=66.7,
+                          owner_costs=144.44,
+                          renter_km=100.0,
+                          renter_km_percentage=33.3,
+                          renter_costs=72.22,
+                          owner_fuel_debt=0.0,
+                          renter_fuel_debt=16.20),
     ]
 
     report = calculate_report(results)
@@ -105,7 +146,15 @@ def test_given_multiple_rows_when_calculate_report_then_each_row_is_mapped_corre
 
 
 def test_given_renter_fuel_debt_higher_than_owner_fuel_debt_when_calculate_report_then_renter_debt_is_positive():
-    results = [MonthlyCostResult(month="2025-01", owner_km=50.0, owner_km_percentage=25.0, owner_costs=54.17, renter_km=150.0, renter_km_percentage=75.0, renter_costs=162.50, owner_fuel_debt=0.0, renter_fuel_debt=21.60)]
+    results = [MonthlyCostResult(month="2025-01",
+                                 owner_km=50.0,
+                                 owner_km_percentage=25.0,
+                                 owner_costs=54.17,
+                                 renter_km=150.0,
+                                 renter_km_percentage=75.0,
+                                 renter_costs=162.50,
+                                 owner_fuel_debt=0.0,
+                                 renter_fuel_debt=21.60)]
 
     report = calculate_report(results)
 
@@ -114,7 +163,15 @@ def test_given_renter_fuel_debt_higher_than_owner_fuel_debt_when_calculate_repor
 
 
 def test_given_owner_fuel_debt_higher_than_renter_fuel_debt_when_calculate_report_then_renter_debt_is_reduced():
-    results = [MonthlyCostResult(month="2025-01", owner_km=150.0, owner_km_percentage=75.0, owner_costs=162.50, renter_km=50.0, renter_km_percentage=25.0, renter_costs=54.17, owner_fuel_debt=21.60, renter_fuel_debt=0.0)]
+    results = [MonthlyCostResult(month="2025-01",
+                                 owner_km=150.0,
+                                 owner_km_percentage=75.0,
+                                 owner_costs=162.50,
+                                 renter_km=50.0,
+                                 renter_km_percentage=25.0,
+                                 renter_costs=54.17,
+                                 owner_fuel_debt=21.60,
+                                 renter_fuel_debt=0.0)]
 
     report = calculate_report(results)
 
