@@ -25,38 +25,19 @@ class MonthlyCostResult:
 
 def calculate_monthly_costs(trips, start_date: date = None) -> list[MonthlyCostResult]:
     if not trips:
-        return []
-
+        raise ValueError("Keine Fahrten gefunden.")
     trips_sorted = sorted(trips, key=lambda t: t["datum"])
-
     __check_invalid_kilometers(trips_sorted)
-
     months_trips = defaultdict(list)
     for t in trips_sorted:
         months_trips[t["month"]].append(t)
-
-    all_months = sorted(months_trips.keys())
-    start_year, start_month = map(int, all_months[0].split("-"))
-    end_year, end_month = map(int, all_months[-1].split("-"))
-
-    # Build full month range (no gaps)
-    months_range = []
-    y, m = start_year, start_month
-    while (y, m) <= (end_year, end_month):
-        months_range.append(f"{y:04d}-{m:02d}")
-        m += 1
-        if m > 12:
-            m = 1
-            y += 1
-
+    months = build_month_ranges(months_trips)
     prev_last_km = None
     prev_month_fuel_end = None
-    first_month = months_range[0]
-
     results = []
-    for month in months_range:
+    for month in months:
         month_trips = months_trips.get(month, [])
-        effective_pauschale = __effective_pauschale_for_month(month, first_month, start_date)
+        effective_pauschale = __effective_pauschale_for_month(month, months[0], start_date)
         if not month_trips:
             results.append(MonthlyCostResult(month=month,
                                              owner_km=0.0,
@@ -118,6 +99,37 @@ def calculate_monthly_costs(trips, start_date: date = None) -> list[MonthlyCostR
     return results
 
 
+def build_month_ranges(months_trips: defaultdict[Any, list]) -> list[Any]:
+    all_months = sorted(months_trips.keys())
+    start_year, start_month = map(int, all_months[0].split("-"))
+    end_year, end_month = map(int, all_months[-1].split("-"))
+
+    months_range = []
+    y, m = start_year, start_month
+    while (y, m) <= (end_year, end_month):
+        months_range.append(f"{y:04d}-{m:02d}")
+        m += 1
+        if m > 12:
+            m = 1
+            y += 1
+    return months_range
+
+
+def __check_invalid_kilometers(trips_sorted: list[Any]):
+    for i, trip in enumerate(trips_sorted, start=1):
+        if trip["km_end"] < trip["km_start"]:
+            raise ValueError(
+                f"Ungültige km-Werte in Eintrag {i}: km_end={trip['km_end']} "
+                f"kleiner als km_start={trip['km_start']}.")
+
+    for i in range(1, len(trips_sorted)):
+        prev_end = trips_sorted[i - 1]["km_end"]
+        curr_start = trips_sorted[i]["km_start"]
+        if curr_start < prev_end:
+            raise ValueError(
+                f"Ungültige km-Reihenfolge: Eintrag {i + 1} hat km_start={curr_start} "
+                f"kleiner als vorheriges km_end={prev_end}.")
+
 def __effective_pauschale_for_month(month: str, first_month: str, start_date: date) -> float:
     if start_date is None or month != first_month:
         return MONTHLY_PAUSCHALE
@@ -126,20 +138,3 @@ def __effective_pauschale_for_month(month: str, first_month: str, start_date: da
     days_used = days_in_month - start_date.day + 1
     return MONTHLY_PAUSCHALE * (days_used / days_in_month)
 
-
-def __check_invalid_kilometers(trips_sorted: list[Any]):
-    for i, trip in enumerate(trips_sorted, start=1):
-        if trip["km_end"] < trip["km_start"]:
-            raise ValueError(
-                f"Ungültige km-Werte in Eintrag {i}: km_end={trip['km_end']} "
-                f"kleiner als km_start={trip['km_start']}."
-            )
-
-    for i in range(1, len(trips_sorted)):
-        prev_end = trips_sorted[i - 1]["km_end"]
-        curr_start = trips_sorted[i]["km_start"]
-        if curr_start < prev_end:
-            raise ValueError(
-                f"Ungültige km-Reihenfolge: Eintrag {i + 1} hat km_start={curr_start} "
-                f"kleiner als vorheriges km_end={prev_end}."
-            )
