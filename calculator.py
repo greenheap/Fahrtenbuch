@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Any
 
-from fuel_calculator import calculate_owner_fuel_debt, calculate_renter_fuel_debt, DEFAULT_FUEL_PRICE_PER_LITRE, TOTAL_FUEL_CAPACITY
+from fuel_calculator import calculate_owner_fuel_debt, calculate_renter_fuel_debt
 
 YEARLY_PAUSCHALE = 2600.0
 MONTHLY_PAUSCHALE = YEARLY_PAUSCHALE / 12
@@ -26,12 +26,8 @@ class MonthlyCostResult:
 def calculate_monthly_costs(trips, start_date: date = None) -> list[MonthlyCostResult]:
     if not trips:
         raise ValueError("Keine Fahrten gefunden.")
-    trips_sorted = sorted(trips, key=lambda t: t["datum"])
-    __check_invalid_kilometers(trips_sorted)
-    months_trips = defaultdict(list)
-    for t in trips_sorted:
-        months_trips[t["month"]].append(t)
-    months = build_month_ranges(months_trips)
+    months_trips = __get_month_trips(trips)
+    months = __build_month_ranges(months_trips)
     prev_last_km = None
     prev_month_fuel_end = None
     results = []
@@ -50,19 +46,9 @@ def calculate_monthly_costs(trips, start_date: date = None) -> list[MonthlyCostR
                                              renter_fuel_debt=0.0))
             continue
 
-        first_km_start = month_trips[0]["km_start"]
-        last_km_end = month_trips[-1]["km_end"]
-
-        if prev_last_km is not None and prev_last_km < first_km_start:
-            total_km = last_km_end - prev_last_km
-        else:
-            total_km = last_km_end - first_km_start
-
-        owner_km = sum(t["owner_km"] for t in month_trips)
-        renter_km = max(0.0, total_km - owner_km)
+        last_km_end, owner_km, renter_km, total_km = __summarize_monthly_trips(month_trips, prev_last_km)
 
         prev_last_km = last_km_end
-
         owner_fuel_debt = calculate_owner_fuel_debt(month_trips)
         renter_fuel_debt = calculate_renter_fuel_debt(month_trips, prev_month_fuel_end)
 
@@ -70,15 +56,7 @@ def calculate_monthly_costs(trips, start_date: date = None) -> list[MonthlyCostR
         prev_month_fuel_end = last_trip_with_fuel["fuel_end"] if last_trip_with_fuel else prev_month_fuel_end
 
         if total_km == 0:
-            results.append(MonthlyCostResult(month=month,
-                                             owner_km=0.0,
-                                             owner_km_percentage=0.0,
-                                             owner_costs=0.0,
-                                             renter_km=0.0,
-                                             renter_km_percentage=0.0,
-                                             renter_costs=0.0,
-                                             owner_fuel_debt=owner_fuel_debt,
-                                             renter_fuel_debt=renter_fuel_debt))
+            __append_result_for_empty_km(month, owner_fuel_debt, renter_fuel_debt, results)
         else:
             owner_km_percentage = owner_km / total_km * 100
             renter_km_percentage = renter_km / total_km * 100
@@ -93,13 +71,46 @@ def calculate_monthly_costs(trips, start_date: date = None) -> list[MonthlyCostR
                 renter_km_percentage=renter_km_percentage,
                 renter_costs=renter_costs,
                 owner_fuel_debt=owner_fuel_debt,
-                renter_fuel_debt=renter_fuel_debt,
-            ))
-
+                renter_fuel_debt=renter_fuel_debt,))
     return results
 
 
-def build_month_ranges(months_trips: defaultdict[Any, list]) -> list[Any]:
+def __summarize_monthly_trips(month_trips: list | list[Any], prev_last_km: Any | None) -> tuple[Any, int, float, Any]:
+    first_km_start = month_trips[0]["km_start"]
+    last_km_end = month_trips[-1]["km_end"]
+
+    if prev_last_km is not None and prev_last_km < first_km_start:
+        total_km = last_km_end - prev_last_km
+    else:
+        total_km = last_km_end - first_km_start
+
+    owner_km = sum(t["owner_km"] for t in month_trips)
+    renter_km = max(0.0, total_km - owner_km)
+    return last_km_end, owner_km, renter_km, total_km
+
+
+def __get_month_trips(trips) -> defaultdict[Any, list]:
+    trips_sorted = sorted(trips, key=lambda t: t["datum"])
+    __check_invalid_kilometers(trips_sorted)
+    months_trips = defaultdict(list)
+    for t in trips_sorted:
+        months_trips[t["month"]].append(t)
+    return months_trips
+
+
+def __append_result_for_empty_km(month, owner_fuel_debt: float, renter_fuel_debt: float, results: list[Any]):
+    results.append(MonthlyCostResult(month=month,
+                                     owner_km=0.0,
+                                     owner_km_percentage=0.0,
+                                     owner_costs=0.0,
+                                     renter_km=0.0,
+                                     renter_km_percentage=0.0,
+                                     renter_costs=0.0,
+                                     owner_fuel_debt=owner_fuel_debt,
+                                     renter_fuel_debt=renter_fuel_debt))
+
+
+def __build_month_ranges(months_trips: defaultdict[Any, list]) -> list[Any]:
     all_months = sorted(months_trips.keys())
     start_year, start_month = map(int, all_months[0].split("-"))
     end_year, end_month = map(int, all_months[-1].split("-"))
