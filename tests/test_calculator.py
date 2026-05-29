@@ -258,3 +258,32 @@ def test_given_trips_spanning_year_boundary_then_month_range_includes_all_months
     assert january.month == "2027-01"
     assert december.owner_costs == 0.0
     assert january.owner_costs == 0.0
+
+
+def test_given_gap_between_months_then_gap_km_assigned_to_renter():
+    trips = [
+        {"datum": "2026-05-01",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1100.0,
+         "owner_km": 100.0,
+         "fuel_start": 10,
+         "fuel_end": 10},
+        {"datum": "2026-06-01",
+         "month": "2026-06",
+         "km_start": 1150.0,
+         "km_end": 1250.0,
+         "owner_km": 100.0,
+         "fuel_start": 10,
+         "fuel_end": 10},
+    ]
+
+    results = calculate_monthly_costs(trips)
+
+    may_result = results[0]
+    june_result = results[1]
+    assert may_result.owner_km == 100.0
+    assert may_result.renter_km == 0.0
+    assert june_result.owner_km == 100.0
+    assert june_result.renter_km == 50.0
+
