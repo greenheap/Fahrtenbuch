@@ -36,6 +36,15 @@ class TripRepository:
             return None
         return int(row[0])
 
+    def get_latest_fuel_end(self):
+        cursor = self._connection.execute(
+            "SELECT fuel_end FROM trips ORDER BY datum DESC, id DESC LIMIT 1"
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return row[0]
+
     def load_all_trips(self):
         cursor = self._connection.execute(
             "SELECT datum, km_start, km_end, fuel_start, fuel_end, fuel_price FROM trips ORDER BY datum, id"
