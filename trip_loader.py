@@ -27,6 +27,7 @@ def load_trips(filepath="fahrtenbuch.csv"):
                 raise ValueError(f"Zeile {i}: fuel_start und fuel_end sind Pflichtfelder.")
 
             month = datum[:7]
+            fuel_price_value = float(row["fuel_price"].strip()) if row.get("fuel_price") and row["fuel_price"].strip() else None
             trips.append({
                 "datum": datum,
                 "month": month,
@@ -35,7 +36,7 @@ def load_trips(filepath="fahrtenbuch.csv"):
                 "owner_km": km_end - km_start,
                 "fuel_start": fuel_start,
                 "fuel_end": fuel_end,
-                "fuel_price": float(row["fuel_price"].strip()) if row.get("fuel_price") and row["fuel_price"].strip() else 2.00,
+                "fuel_price": fuel_price_value,
             })
 
     return trips

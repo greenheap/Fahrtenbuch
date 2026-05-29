@@ -100,7 +100,7 @@ def test_given_multiple_valid_rows_when_loading_then_returns_all_trips():
     assert len(result) == 2
     assert result[0]["owner_km"] == 100.0
     assert result[1]["owner_km"] == 200.0
-    assert result[1]["fuel_price"] == 2.00
+    assert result[1]["fuel_price"] is None
 
 
 def test_given_fuel_value_of_zero_when_parsing_then_returns_zero():
