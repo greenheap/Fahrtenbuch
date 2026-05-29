@@ -8,8 +8,9 @@ from fuel_calculator import DEFAULT_FUEL_PRICE_PER_LITRE, TOTAL_FUEL_CAPACITY
 
 
 def test_empty_list():
-    results = calculate_monthly_costs([])
-    assert results == []
+    with pytest.raises(ValueError):
+        calculate_monthly_costs([])
+
 
 def test_given_first_trip_km_start_equals_second_trip_km_start_then_throw_exception():
     trips = [
@@ -50,6 +51,7 @@ def test_given_owner_returns_car_with_less_fuel_then_owner_has_fuel_debt():
     assert results[0].owner_fuel_debt == round(10 * (TOTAL_FUEL_CAPACITY / 20) * DEFAULT_FUEL_PRICE_PER_LITRE, 2)
     assert results[0].renter_fuel_debt == 0.0
 
+
 def test_given_renter_drives_between_trips_and_returns_less_fuel_then_renter_has_fuel_debt():
     trips = [
         {"datum": "2026-05-01",
@@ -72,6 +74,7 @@ def test_given_renter_drives_between_trips_and_returns_less_fuel_then_renter_has
 
     assert results[0].owner_fuel_debt == 0.0
     assert results[0].renter_fuel_debt == round(3 * (TOTAL_FUEL_CAPACITY / 20) * DEFAULT_FUEL_PRICE_PER_LITRE, 2)
+
 
 def test_given_renter_drives_between_trips_and_returns_more_fuel_then_renter_has_fuel_plus():
     trips = [
@@ -96,6 +99,36 @@ def test_given_renter_drives_between_trips_and_returns_more_fuel_then_renter_has
     results = calculate_monthly_costs(trips)
 
     assert results[0].renter_fuel_debt == -51.3
+
+
+def test_given_one_month_with_no_trips_then():
+    trips = [
+        {"datum": "2026-05-01",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1100.0,
+         "owner_km": 100.0,
+         "fuel_start": 1,
+         "fuel_end": 2},
+        {"datum": "2026-07-01",
+         "month": "2026-07",
+         "km_start": 1100.0,
+         "km_end": 1200.0,
+         "owner_km": 200.0,
+         "fuel_start": 1,
+         "fuel_end": 2},
+    ]
+
+    results = calculate_monthly_costs(trips)
+
+    empty_month = results[1]
+    assert empty_month.month == "2026-06"
+    assert empty_month.owner_km == 0.0
+    assert empty_month.renter_km == 0.0
+    assert empty_month.owner_costs == 0.0
+    assert empty_month.renter_costs == 0.0
+    assert empty_month.owner_fuel_debt == 0.0
+    assert empty_month.renter_fuel_debt == 0.0
 
 
 def test_100_percent():
@@ -153,6 +186,24 @@ def test_75_percentage_split():
     assert round(result.renter_costs, 2) == round(MONTHLY_PAUSCHALE * 0.25, 2)
 
 
+def test_given_start_date_mid_month_and_zero_km_then_costs_are_zero():
+    trips = [
+        {"datum": "2026-05-25",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1000.0,
+         "owner_km": 0.0,
+         "fuel_start": 10,
+         "fuel_end": 10},
+    ]
+    start_date = date(2026, 5, 25)
+
+    results = calculate_monthly_costs(trips, start_date=start_date)
+
+    assert round(results[0].owner_costs, 2) == 0.0
+    assert round(results[0].renter_costs, 2) == 0.0
+
+
 def test_given_fuel_drop_between_months_then_renter_fuel_debt_is_charged_in_second_month():
     trips = [
         {"datum": "2026-05-01",
@@ -179,21 +230,31 @@ def test_given_fuel_drop_between_months_then_renter_fuel_debt_is_charged_in_seco
     assert june_result.renter_fuel_debt == round(12 * (TOTAL_FUEL_CAPACITY / 20) * DEFAULT_FUEL_PRICE_PER_LITRE, 2)
 
 
-def test_given_start_date_mid_month_then_first_month_pauschale_is_charged_for_days_used_in_month():
+def test_given_trips_spanning_year_boundary_then_month_range_includes_all_months():
     trips = [
-        {"datum": "2026-05-25",
-         "month": "2026-05",
+        {"datum": "2026-11-01",
+         "month": "2026-11",
          "km_start": 1000.0,
          "km_end": 1100.0,
          "owner_km": 100.0,
          "fuel_start": 10,
          "fuel_end": 10},
+        {"datum": "2027-02-01",
+         "month": "2027-02",
+         "km_start": 1100.0,
+         "km_end": 1200.0,
+         "owner_km": 100.0,
+         "fuel_start": 10,
+         "fuel_end": 10},
     ]
-    start_date = date(2026, 5, 25)
-    days_in_may = calendar.monthrange(2026, 5)[1]
-    days_used = days_in_may - 25 + 1
-    expected_pauschale = MONTHLY_PAUSCHALE * (days_used / days_in_may)
 
-    results = calculate_monthly_costs(trips, start_date=start_date)
+    results = calculate_monthly_costs(trips)
 
-    assert round(results[0].owner_costs, 2) == round(expected_pauschale, 2)
+    months = [r.month for r in results]
+    assert months == ["2026-11", "2026-12", "2027-01", "2027-02"]
+    december = results[1]
+    january = results[2]
+    assert december.month == "2026-12"
+    assert january.month == "2027-01"
+    assert december.owner_costs == 0.0
+    assert january.owner_costs == 0.0
