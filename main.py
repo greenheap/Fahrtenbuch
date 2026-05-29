@@ -1,4 +1,4 @@
-from calculator import calculate_monthly_costs, YEARLY_PAUSCHALE, MONTHLY_PAUSCHALE, FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
+from calculator import calculate_monthly_costs, YEARLY_PAUSCHALE, MONTHLY_PAUSCHALE, DEFAULT_FUEL_PRICE_PER_LITRE, TOTAL_FUEL_CAPACITY
 from report_calculator import calculate_report
 from trip_loader import load_trips
 
@@ -14,7 +14,7 @@ def print_report(results):
     separator_width = 10 + 3 + 44 + 3 + 44 + 3 + last_col_width + 2
     separator = "-" * separator_width
     print(f"Fahrtenbuch - Monatliche Kostenaufteilung (Pauschale: {YEARLY_PAUSCHALE:.0f} EUR/Jahr)")
-    print(f"Monatlicher Betrag: {MONTHLY_PAUSCHALE:.2f} EUR  |  Kraftstoff: {FUEL_COST_PER_LITRE:.2f} EUR/Liter  |  Tank: {TOTAL_FUEL_CAPACITY} Liter")
+    print(f"Monatlicher Betrag: {MONTHLY_PAUSCHALE:.2f} EUR  |  Tank: {TOTAL_FUEL_CAPACITY} Liter")
     print(separator)
     print(f"{'Monat':<10} | {f'{OWNER_NAME} km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8} | {f'{RENTER_NAME} km':>10} {'%':>6} {'EUR':>8} {'Benzin':>8} {'Gesamt':>8} | {schulden_header:>{last_col_width}} |")
     print(f"{'':10} | {'':10} {'':6} {'':8} {'':8} {'':8} | {'':10} {'':6} {'':8} {'':8} {'':8} | {hint_text:>{last_col_width}} |")

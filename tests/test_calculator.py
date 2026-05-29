@@ -1,7 +1,7 @@
 import pytest
 
 from calculator import calculate_monthly_costs, MONTHLY_PAUSCHALE
-from fuel_calculator import FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
+from fuel_calculator import DEFAULT_FUEL_PRICE_PER_LITRE, TOTAL_FUEL_CAPACITY
 
 
 def test_empty_list():
@@ -44,24 +44,66 @@ def test_given_owner_returns_car_with_less_fuel_then_owner_has_fuel_debt():
 
     results = calculate_monthly_costs(trips)
 
-    assert results[0].owner_fuel_debt == round(10 * (TOTAL_FUEL_CAPACITY / 20) * FUEL_COST_PER_LITRE, 2)
+    assert results[0].owner_fuel_debt == round(10 * (TOTAL_FUEL_CAPACITY / 20) * DEFAULT_FUEL_PRICE_PER_LITRE, 2)
     assert results[0].renter_fuel_debt == 0.0
 
 def test_given_renter_drives_between_trips_and_returns_less_fuel_then_renter_has_fuel_debt():
     trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": 10, "fuel_end": 10},
-        {"datum": "2026-05-10", "month": "2026-05", "km_start": 1200.0, "km_end": 1400.0, "owner_km": 200.0, "fuel_start": 7, "fuel_end": 7},
+        {"datum": "2026-05-01",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1100.0,
+         "owner_km": 100.0,
+         "fuel_start": 10,
+         "fuel_end": 10},
+        {"datum": "2026-05-10",
+         "month": "2026-05",
+         "km_start": 1200.0,
+         "km_end": 1400.0,
+         "owner_km": 200.0,
+         "fuel_start": 7,
+         "fuel_end": 7},
     ]
 
     results = calculate_monthly_costs(trips)
 
     assert results[0].owner_fuel_debt == 0.0
-    assert results[0].renter_fuel_debt == round(3 * (TOTAL_FUEL_CAPACITY / 20) * FUEL_COST_PER_LITRE, 2)
+    assert results[0].renter_fuel_debt == round(3 * (TOTAL_FUEL_CAPACITY / 20) * DEFAULT_FUEL_PRICE_PER_LITRE, 2)
+
+def test_given_renter_drives_between_trips_and_returns_more_fuel_then_renter_has_fuel_plus():
+    trips = [
+        {"datum": "2026-05-01",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1100.0,
+         "owner_km": 100.0,
+         "fuel_start": 10,
+         "fuel_end": 10,
+         "fuel_price": 3.90},
+        {"datum": "2026-05-10",
+         "month": "2026-05",
+         "km_start": 1200.0,
+         "km_end": 1200.0,
+         "owner_km": 200.0,
+         "fuel_start": 20,
+         "fuel_end": 20,
+         "fuel_price": 1.90},
+    ]
+
+    results = calculate_monthly_costs(trips)
+
+    assert results[0].renter_fuel_debt == -51.3
 
 
 def test_100_percent():
     trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": 1, "fuel_end": 2},
+        {"datum": "2026-05-01",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1100.0,
+         "owner_km": 100.0,
+         "fuel_start": 1,
+         "fuel_end": 2},
     ]
 
     results = calculate_monthly_costs(trips)
@@ -79,8 +121,20 @@ def test_100_percent():
 
 def test_75_percentage_split():
     trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": 0, "fuel_end": 0},
-        {"datum": "2026-05-10", "month": "2026-05", "km_start": 1200.0, "km_end": 1400.0, "owner_km": 200.0, "fuel_start": 0, "fuel_end": 0},
+        {"datum": "2026-05-01",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1100.0,
+         "owner_km": 100.0,
+         "fuel_start": 0,
+         "fuel_end": 0},
+        {"datum": "2026-05-10",
+         "month": "2026-05",
+         "km_start": 1200.0,
+         "km_end": 1400.0,
+         "owner_km": 200.0,
+         "fuel_start": 0,
+         "fuel_end": 0},
     ]
 
     results = calculate_monthly_costs(trips)
@@ -98,8 +152,20 @@ def test_75_percentage_split():
 
 def test_given_fuel_drop_between_months_then_renter_fuel_debt_is_charged_in_second_month():
     trips = [
-        {"datum": "2026-05-01", "month": "2026-05", "km_start": 1000.0, "km_end": 1100.0, "owner_km": 100.0, "fuel_start": 10, "fuel_end": 12},
-        {"datum": "2026-06-01", "month": "2026-06", "km_start": 1200.0, "km_end": 1300.0, "owner_km": 100.0, "fuel_start": 0, "fuel_end": 0},
+        {"datum": "2026-05-01",
+         "month": "2026-05",
+         "km_start": 1000.0,
+         "km_end": 1100.0,
+         "owner_km": 100.0,
+         "fuel_start": 10,
+         "fuel_end": 12},
+        {"datum": "2026-06-01",
+         "month": "2026-06",
+         "km_start": 1200.0,
+         "km_end": 1300.0,
+         "owner_km": 100.0,
+         "fuel_start": 0,
+         "fuel_end": 0},
     ]
 
     results = calculate_monthly_costs(trips)
@@ -107,4 +173,4 @@ def test_given_fuel_drop_between_months_then_renter_fuel_debt_is_charged_in_seco
     may_result = results[0]
     june_result = results[1]
     assert may_result.renter_fuel_debt == 0.0
-    assert june_result.renter_fuel_debt == round(12 * (TOTAL_FUEL_CAPACITY / 20) * FUEL_COST_PER_LITRE, 2)
+    assert june_result.renter_fuel_debt == round(12 * (TOTAL_FUEL_CAPACITY / 20) * DEFAULT_FUEL_PRICE_PER_LITRE, 2)

@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
-from fuel_calculator import calculate_owner_fuel_debt, calculate_renter_fuel_debt, FUEL_COST_PER_LITRE, TOTAL_FUEL_CAPACITY
+from fuel_calculator import calculate_owner_fuel_debt, calculate_renter_fuel_debt, DEFAULT_FUEL_PRICE_PER_LITRE, TOTAL_FUEL_CAPACITY
 
 YEARLY_PAUSCHALE = 2600.0
 MONTHLY_PAUSCHALE = YEARLY_PAUSCHALE / 12
